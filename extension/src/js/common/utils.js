@@ -4,4 +4,11 @@ function bglog(obj) {
 	}
 }
 
-export {bglog};
+function parseHostname(url){
+	let parser = document.createElement('a');
+	parser.href = url;
+
+	return parser.hostname;
+}
+
+export {bglog, parseHostname};

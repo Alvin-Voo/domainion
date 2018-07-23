@@ -65,6 +65,21 @@ describe('Basic public/external function test', ()=>{
     assert.strictEqual(result.url,testdomains[1]);
   });
 
+  it('the NewCapturedDomain event fires after domain is attacked', async()=>{
+    domainion.events.NewCapturedDomain((err, event)=>{
+      if(err) assert(false);
+      const retVal = event.returnValues;
+      assert.strictEqual(retVal.domainId,'1');
+      assert.strictEqual(retVal.url,testdomains[0]);
+      assert.strictEqual(retVal.player,accounts[0]);
+    });
+
+    await domainion.methods.attackDomain(testdomains[0]).send({
+      from:accounts[0],
+      gas:'1000000'
+    });
+  });
+
   it('returns the rightful player to an occupied domain', async()=>{
     await domainion.methods.attackDomain(testdomains[0]).send({
       from:accounts[0],

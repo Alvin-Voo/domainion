@@ -2,7 +2,7 @@
   "name": "Domainion",
   "version": "1.0",
   "description": "A journey to world domaination",
-  "permissions":["activeTab","declarativeContent", "storage"],
+  "permissions":["activeTab","declarativeContent", "storage","tabs"],
   "options_page": "options.html",
   "background": {
     "page": "background.html"
