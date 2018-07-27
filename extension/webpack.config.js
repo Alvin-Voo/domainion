@@ -20,11 +20,11 @@ if (fileSystem.existsSync(secretsPath)) {
 
 var options = {
   entry: {
-    popup: path.join(__dirname, "src", "js", "popup.js"),
-    options: path.join(__dirname, "src", "js", "options.js"),
-    background: path.join(__dirname, "src", "js", "background.js"),
-    content: path.join(__dirname, "src", "js", "content.js"),
-    script: path.join(__dirname, "src", "js", "script.js")
+    popup: path.join(__dirname, "src/js", "popup/popup.js"),
+    options: path.join(__dirname, "src/js", "options/options.js"),
+    background: path.join(__dirname, "src/js", "background/background.js"),
+    content: path.join(__dirname, "src/js", "content/content.js"),
+    script: path.join(__dirname, "src/js", "script/script.js")
   },
   chromeExtensionBoilerplate: {
     notHotReload: ["content","script"]
@@ -37,13 +37,20 @@ var options = {
     rules: [
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader",
-        exclude: /node_modules/
+        loader: "style-loader!css-loader"
       },
       {
         test: new RegExp('\.(' + fileExtensions.join('|') + ')$'),
-        loader: "file-loader?name=[name].[ext]",
-        exclude: /node_modules/
+        loader: 'url-loader?limit=100000'
+      },
+      {
+        test: new RegExp('\.(' + fileExtensions.join('|') + ')$'),
+        loader: "file-loader?name=[name].[ext]"
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
@@ -53,7 +60,9 @@ var options = {
     ]
   },
   resolve: {
-    alias: alias
+    alias: alias,
+    modules: ['node_modules', path.resolve(__dirname,'src')],
+    extensions: ['.js', '.jsx']
   },
   plugins: [
     // clean the build folder
@@ -74,17 +83,17 @@ var options = {
       }
     }]),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "popup.html"),
+      template: path.join(__dirname, "src/html", "popup.html"),
       filename: "popup.html",
       chunks: ["popup"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "options.html"),
+      template: path.join(__dirname, "src/html", "options.html"),
       filename: "options.html",
       chunks: ["options"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "background.html"),
+      template: path.join(__dirname, "src/html", "background.html"),
       filename: "background.html",
       chunks: ["background"]
     }),

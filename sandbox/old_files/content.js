@@ -1,4 +1,4 @@
-import {parseHostname} from './common/utils';
+import {parseHostname} from 'js/common/utils';
 
 //here console logs to web page - content script init once per webpage?
 console.log('content script init!!');

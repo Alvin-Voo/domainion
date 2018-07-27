@@ -5,7 +5,7 @@ const Web3 = require('web3');//this will return a constructor function
 const provider = ganache.provider();//this is the provider to the network
 const web3 = new Web3(provider);//can make multiple instances
 
-const compiledDomainion = require('../ethereum/build/Domainion');
+const compiledDomainion = require('../ethereum/build/GamePlay');
 
 let accounts;
 const testdomains = ['www.1.com','www.2.com','www.3.com','www.4.com','www.5.com'];
@@ -34,28 +34,35 @@ beforeEach(async()=>{
   });
 })
 
-describe('Basic public/external function test', ()=>{
-
-  it('created 3 players with valid minionCount',async ()=>{
+describe('Basic public/external function test', function(){
+  it('created 3 players with valid address & minionCount',async ()=>{
     let result = await domainion.methods.players(0).call();
+    assert.strictEqual(result.playerAddress,accounts[0]);
     assert.strictEqual(result.minionCount,'1000');
     result = await domainion.methods.players(1).call();
+    assert.strictEqual(result.playerAddress,accounts[1]);
     assert.strictEqual(result.minionCount,'1000');
     result = await domainion.methods.players(2).call();
+    assert.strictEqual(result.playerAddress,accounts[2]);
     assert.strictEqual(result.minionCount,'1000');
   });
 
   it('players could attack new domain(s)',async()=>{
+
     await domainion.methods.attackDomain(testdomains[0]).send({
       from:accounts[0],
       gas:'1000000'
     });
+
     await domainion.methods.attackDomain(testdomains[1]).send({
       from:accounts[0],
       gas:'1000000'
     });
 
-    const retDomains = await domainion.methods.getDomainsByPlayer(accounts[0]).call();
+    const retDomains = await domainion.methods.getMyDomains().call({
+      from:accounts[0]
+    });
+
     assert.strictEqual(retDomains[0],'1');
     assert.strictEqual(retDomains[1],'2');
 
@@ -71,7 +78,7 @@ describe('Basic public/external function test', ()=>{
       const retVal = event.returnValues;
       assert.strictEqual(retVal.domainId,'1');
       assert.strictEqual(retVal.url,testdomains[0]);
-      assert.strictEqual(retVal.player,accounts[0]);
+      assert.strictEqual(retVal.playerAddress,accounts[0]);
     });
 
     await domainion.methods.attackDomain(testdomains[0]).send({
@@ -90,15 +97,19 @@ describe('Basic public/external function test', ()=>{
       gas:'1000000'
     });
 
-    let player = await domainion.methods.getPlayerByDomain(testdomains[0]).call()
-    assert.strictEqual(player,accounts[0]);
-    player = await domainion.methods.getPlayerByDomain(testdomains[1]).call()
-    assert.strictEqual(player,accounts[0]);
+    let info = await domainion.methods.getDomainInfo(testdomains[0]).call()
+    assert.strictEqual(info.playerAddress,accounts[0]);
+    info = await domainion.methods.getDomainInfo(testdomains[1]).call()
+    assert.strictEqual(info.playerAddress,accounts[0]);
   });
 
-  it('returns a nice 0x0000000000000000000000000000000000000000 for unoccupied domain', async()=>{
-    let player = await domainion.methods.getPlayerByDomain(testdomains[0]).call()
-    assert.strictEqual(player,'0x0000000000000000000000000000000000000000');
+  it('reverts transaction for unoccupied domain', async()=>{
+    try{
+      let info = await domainion.methods.getDomainInfo(testdomains[0]).call()
+      assert(false);
+    }catch(e){
+      assert(true);
+    }
   });
 
   it('returns correct info for player', async()=>{
@@ -160,4 +171,95 @@ describe('Test cooldown period of attack (Pls wait for around 20secs)', function
       assert(false);
     }
   });
+})
+
+describe('Admin functions', function(){
+  it('removes a player and all the player\'s info and domains will be resetted', async()=>{
+    await domainion.methods.attackDomain(testdomains[0]).send({
+      from:accounts[1],
+      gas:'1000000'
+    });
+    await domainion.methods.attackDomain(testdomains[1]).send({
+      from:accounts[1],
+      gas:'1000000'
+    });
+
+    await domainion.methods.removePlayer(accounts[1]).send({
+      from:accounts[0],
+      gas:'1000000'
+    });
+
+    const {playerAddress,minionCount,domainCount} = await domainion.methods.players(1).call();
+    assert.strictEqual(parseInt(playerAddress),0);
+    assert.strictEqual(minionCount,'0');
+    assert.strictEqual(domainCount,'0');
+
+    const info1 = await domainion.methods.getDomainInfo(testdomains[0]).call();
+    assert.strictEqual(parseInt(info1.playerAddress),0);
+    const info2 = await domainion.methods.getDomainInfo(testdomains[1]).call();
+    assert.strictEqual(parseInt(info2.playerAddress),0);
+  });
+
+  it('removes a player and the said player can still re-join afterwards', async()=>{
+    await domainion.methods.removePlayer(accounts[1]).send({
+      from:accounts[0],
+      gas:'1000000'
+    });
+
+    await domainion.methods.createPlayer().send({
+      from: accounts[1],
+      gas: '1000000'
+    });
+
+    const {playerAddress,minionCount,domainCount} = await domainion.methods.players(3).call();
+    assert.strictEqual(playerAddress,accounts[1]);
+    assert.strictEqual(minionCount,'1000');
+  });
+
+  it('bans a player and the player will be in banned list. All the player\'s info and domains will also be resetted', async()=>{
+    await domainion.methods.attackDomain(testdomains[0]).send({
+      from:accounts[1],
+      gas:'1000000'
+    });
+    await domainion.methods.attackDomain(testdomains[1]).send({
+      from:accounts[1],
+      gas:'1000000'
+    });
+
+    await domainion.methods.banPlayer(accounts[1],'cheating').send({
+      from:accounts[0],
+      gas:'1000000'
+    });
+
+    const bannedList = await domainion.methods.getBannedPlayersList().call();
+    assert.strictEqual(bannedList[0],accounts[1]);
+
+    const {playerAddress,minionCount,domainCount} = await domainion.methods.players(1).call();
+    assert.strictEqual(parseInt(playerAddress),0);
+    assert.strictEqual(minionCount,'0');
+    assert.strictEqual(domainCount,'0');
+
+    const info1 = await domainion.methods.getDomainInfo(testdomains[0]).call();
+    assert.strictEqual(parseInt(info1.playerAddress),0);
+    const info2 = await domainion.methods.getDomainInfo(testdomains[1]).call();
+    assert.strictEqual(parseInt(info2.playerAddress),0);
+  });
+
+  it('bans a player and the said player can never re-join anymore', async()=>{
+    await domainion.methods.banPlayer(accounts[1],'cheating').send({
+      from:accounts[0],
+      gas:'1000000'
+    });
+
+    try{
+      await domainion.methods.createPlayer().send({
+        from: accounts[1],
+        gas: '1000000'
+      });
+      assert(false);
+    }catch(e){
+      const bannedList = await domainion.methods.getBannedPlayersList().call();
+      assert.strictEqual(bannedList[0],accounts[1]);
+    }
+  })
 })

@@ -1,6 +1,6 @@
-import "../css/popup.css";
+import "css/popup.css";
 //need to send logs to background.js
-import {bglog} from "./common/utils";
+import {bglog} from "js/common/utils";
 
 let join_button = document.getElementById("join");
 let attack_button = document.getElementById("attack");

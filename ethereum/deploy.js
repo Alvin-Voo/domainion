@@ -1,7 +1,7 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const Web3 = require('web3');
 
-const compiledDomainion = require('../ethereum/build/Domainion');
+const compiledDomainion = require('../ethereum/build/GamePlay');
 const {mnemonic} = require('../config/config');
 const provider = new HDWalletProvider(
   mnemonic,
