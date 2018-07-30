@@ -15,22 +15,22 @@ beforeEach(async()=>{
 
   domainion = await new web3.eth.Contract(JSON.parse(compiledDomainion.interface))
   .deploy({data: compiledDomainion.bytecode})
-  .send({from: accounts[0], gas: '2000000'});
+  .send({from: accounts[0], gas: '3000000'});
 
   //before each test case, create 3 players at least
   await domainion.methods.createPlayer().send({
     from: accounts[0],
-    gas: '1000000'
+    gas: '2000000'
   });
 
   await domainion.methods.createPlayer().send({
     from: accounts[1],
-    gas: '1000000'
+    gas: '2000000'
   });
 
   await domainion.methods.createPlayer().send({
     from: accounts[2],
-    gas: '1000000'
+    gas: '2000000'
   });
 })
 
@@ -102,6 +102,15 @@ describe('Basic public/external function test', function(){
     info = await domainion.methods.getDomainInfo(testdomains[1]).call()
     assert.strictEqual(info.playerAddress,accounts[0]);
   });
+
+  it('reverts when domain does not exist', async()=>{
+    try{
+        let info = await domainion.methods.getDomainInfo(testdomains[0]).call()
+        assert(false);
+    }catch(e){
+      assert(true);
+    }
+  })
 
   it('reverts transaction for unoccupied domain', async()=>{
     try{

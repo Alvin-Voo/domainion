@@ -1,6 +1,6 @@
 //console logs to web page
 import Web3 from 'web3';
-import Domainion from '../../../../ethereum/build/GamePlay.json';
+import Domainion from '../../../../ethereum/build/GamePlay';
 //deployed address in Rinkeby Testnet
 const address = '0x0BD7AeF78D112123Bde12E158FDB1DBF0cab004A';
 let accounts;
@@ -30,24 +30,33 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
           from: accounts[0]
         });
         // const pastattackevents = await domainion.getPastEvents("NewCapturedDomain", { fromBlock: 2683508, toBlock: "latest" });
-        // console.log(ret);
+        console.log(ret);
         // console.log(pastattackevents);
         //get player for this domain
-        // console.log(window.location.hostname);
-        const owner_addr = await domainion.methods.getPlayerByDomain(window.location.hostname).call();
-        if(owner_addr===accounts[0]) {
-          domainowner = 'This domain is owned by you!';
-        }else if(!owner_addr){
-          domainowner = 'This domain is NOT owned by anyone yet!';
-        }else{
-          domainowner = `This domain is owned by ${owner_addr}`;
+        console.log(window.location.hostname);
+        try{
+          const {playerAddress} =  await domainion.methods.getDomainInfo(window.location.hostname).call()
+
+          if(playerAddress){
+            console.log("this domain owner is "+playerAddress);
+            domainowner = playerAddress
+          }
+        }catch(e){
+          //means this domain is not registered yet
         }
-        console.log(owner_addr);
-        console.log(domainowner);
+
+        // if(playerAddress===accounts[0]) {
+        //   domainowner = 'This domain is owned by you!';
+        // }else if(!owner_addr){
+        //   domainowner = 'This domain is NOT owned by anyone yet!';
+        // }else{
+        //   domainowner = `This domain is owned by ${owner_addr}`;
+        // }
+        // console.log(domainowner);
         if(ret)exists = true;
 
       }catch(e){
-        console.log(e);
+        console.log(e.message);
         exists = false;
       }
     }
@@ -56,7 +65,8 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
         detail:{
           accountholder: accounts[0],
           exists,
-          domainowner
+          domainowner,
+          url: window.location.hostname
         }
       }
     ))
@@ -69,8 +79,17 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
       await domainion.methods.createPlayer().send({
         from: accounts[0]
       });
+      console.log('script: PLAYER_CREATED');
+      document.dispatchEvent(new CustomerEvent('WEB3_PLAYER_CREATED'));
     }catch(e){
-      console.log(e);
+      console.log(e.message);
+      console.log('script: PLAYER_NOT_CREATED');
+      document.dispatchEvent(new CustomerEvent('WEB3_PLAYER_NOT_CREATED',
+      {
+        detail:{
+          error: e.message
+        }
+      }));
     }
   });
 

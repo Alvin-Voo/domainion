@@ -13,10 +13,15 @@ async function main(){
   try{
     accounts = await web3.eth.getAccounts();
 
+    const gasEst = await new web3.eth.Contract(JSON.parse(compiledDomainion.interface))
+    .deploy({data: compiledDomainion.bytecode}).estimateGas({gas:'5000000'});
+
+    console.log(gasEst);
+
     const domainion = await new web3.eth.Contract(JSON.parse(compiledDomainion.interface))
     .deploy({data: compiledDomainion.bytecode})
-    .send({from: accounts[0], gas: '2000000'});
-
+    .send({from: accounts[0], gas: '5000000'});
+    console.log('after deployed');
     domainion.events.NewCreatedPlayer((err,event)=>{
       const retVal = event.returnValues;
       console.log('player created!');

@@ -62,7 +62,7 @@ var options = {
   resolve: {
     alias: alias,
     modules: ['node_modules', path.resolve(__dirname,'src')],
-    extensions: ['.js', '.jsx']
+    extensions: ['.js', '.jsx','.json']
   },
   plugins: [
     // clean the build folder

@@ -5,7 +5,8 @@
   "permissions":["activeTab","declarativeContent", "storage","tabs"],
   "options_page": "options.html",
   "background": {
-    "page": "background.html"
+    "page": "background.html",
+    "persistent": false
   },
   "content_scripts": [ {
    "js": [ "content.bundle.js" ],

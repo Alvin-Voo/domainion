@@ -7,7 +7,7 @@ contract Players is Admin{
     function createPlayer() public{
         //an initial function to create player or join game - should check if player already exists
         //also check if player was banned
-        require(playerInfo[msg.sender]==0 && bannedPlayerInfo[msg.sender]==0);
+        require(playerInfo[msg.sender]==0 && bannedPlayerInfo[msg.sender]==0,"player already exists or banned");
         //push returns NEW LENGTH -hence id = index + 1
         uint id = players.push(Player({playerAddress:msg.sender,minionCount:1000,domainCount:0,attackRating:1,defenseRating:1}));
         playerInfo[msg.sender] = id;
