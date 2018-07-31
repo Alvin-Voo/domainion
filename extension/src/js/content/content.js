@@ -1,37 +1,31 @@
-import {Store} from 'react-chrome-redux';
 import * as types from 'js/background/actions/types';
-import {store_web3_account_page_info, resetStore} from 'js/background/actions';
-
+require('./messaging/eventListener');
 //here console logs to web page - content script init once per webpage?
 //content script here is mainly a middle man
 console.log('content script init!!');
 
-//ALL communication between content and popup is now settled through redux store
-const proxyStore = new Store({portName: 'WORLD_DOMAINATION'});
+// popup.js (chrome extension) ---> content.js - listener
+// content.js ---> script.js (DOM) - dispatcher
+const onMessageListener = function(message, sender, sendResponse) {
+    console.log("content script listener: "+message.type);
+    switch(message.type) {
+        case types.JOIN:
+          console.log("create player");
+          document.dispatchEvent(new CustomEvent('CREATE_PLAYER'));
+        break;
+        case types.ATTACK:
+          if(!message.hostname) return console.log('attack hostname is empty!');
+          document.dispatchEvent(new CustomEvent('ATTACK_DOMAIN',{detail: message.hostname}));
+        break;
+        case types.INIT:
+          console.log("popup init");
+          document.dispatchEvent(new CustomEvent('INIT'))
+        break;
+    }
+    return true;
+}
 
-proxyStore.subscribe(()=>{
-  console.log('content triggered!');
-  console.log(proxyStore.getState().store);
-  let {popup_command,popup_payload} = proxyStore.getState().store;
-  if(!popup_command) return;
-  switch(popup_command){
-    case types.INIT:
-      console.log('content:init');
-      document.dispatchEvent(new CustomEvent('INIT'));
-    break;
-    case types.JOIN:
-      console.log('content:join');
-      document.dispatchEvent(new CustomEvent('CREATE_PLAYER'));
-    break;
-    case types.ATTACK:
-      console.log('content:attack');
-      if(!popup_payload) return console.log('content: hey..hostname is empty!');
-      document.dispatchEvent(new CustomEvent('ATTACK_DOMAIN',{detail: popup_payload}));
-    break;
-  }
-  //once consumed the event, reset the state such that command is executed once per consumption
-  if(popup_command) proxyStore.dispatch(resetStore());
-})
+chrome.runtime.onMessage.addListener(onMessageListener);
 
 function injectScript(file_path, tag) {
     var node = document.getElementsByTagName(tag)[0];
@@ -42,14 +36,5 @@ function injectScript(file_path, tag) {
     node.appendChild(script);
     script.remove();
 };
-
-// script.js (DOM) ---> content.js - listener
-// content.js ---> popup.js (chrome extension) --- via proxyStore
-document.addEventListener('WEB3_ACCOUNT_PAGE_INFO',(e)=>{
-  console.log('dispatching content ');
-  console.log(e.detail);
-  proxyStore.dispatch(store_web3_account_page_info(e.detail));
-})
-
 
 injectScript(chrome.extension.getURL('script.bundle.js'), 'body');

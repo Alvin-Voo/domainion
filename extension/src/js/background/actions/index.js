@@ -7,12 +7,6 @@ export function bglog(msg){
   }
 }
 
-export function init(){
-  return{
-    type: types.INIT
-  }
-}
-
 export function store_web3_account_page_info(payload){
   return{
     type: types.STORE_WEB3_ACCOUNT_PAGE_INFO,
@@ -20,20 +14,83 @@ export function store_web3_account_page_info(payload){
   }
 }
 
-export function join(){
+export function joining(accountholder){
+  let payloadVal = {};
+  payloadVal[accountholder] = {status: types.JOINING};
+
   return{
-    type: types.JOIN
+    type: types.JOINING,
+    payload: payloadVal
   }
 }
 
-export function attack(payload){//attack who/
+export function join_success({accountholder}){
+  let payloadVal = {};
+  payloadVal[accountholder] = {status: types.JOIN_SUCCESS};
+
   return{
-    type: types.ATTACK,
-    payload
+    type: types.JOIN_SUCCESS,
+    payload: payloadVal
   }
 }
 
-export function resetStore(){
+export function join_fail({accountholder, error}){
+  let payloadVal = {};
+  payloadVal[accountholder] = {status: types.JOIN_FAIL, error};
+
+  return{
+    type: types.JOIN_FAIL,
+    payload: payloadVal
+  }
+}
+
+export function attacking(hostname,accountholder){//attack which domain
+  let payloadVal = {};
+  payloadVal[accountholder]={[hostname]:{currentState: types.ATTACKING}};
+
+  return{
+    type: types.ATTACKING,
+    payload: payloadVal
+  }
+}
+
+export function attack_success({accountholder, hostname}){
+  let payloadVal = {};
+  payloadVal[accountholder] = {[hostname]:{currentState: types.ATTACK_SUCCESS}};
+
+  return{
+    type: types.ATTACK_SUCCESS,
+    payload: payloadVal
+  }
+}
+
+export function attack_fail({accountholder, hostname, error}){
+  let payloadVal = {};
+  payloadVal[accountholder] = {[hostname]:{currentState: types.ATTACK_FAIL},error};
+
+  return{
+    type: types.ATTACK_FAIL,
+    payload: payloadVal
+  }
+}
+
+export function error_clear({accountholder}){
+  let payloadVal = {};
+  payloadVal[accountholder] = {error:''}
+  return{
+    type: types.ERROR_CLEAR,
+    payload: payloadVal
+  }
+}
+
+export function error_out(error){
+  return{
+    type: types.ERROR,
+    payload: error
+  }
+}
+
+export function reset_store(){
   return{
     type: types.RESET_STORE
   }

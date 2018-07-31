@@ -45,14 +45,6 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
           //means this domain is not registered yet
         }
 
-        // if(playerAddress===accounts[0]) {
-        //   domainowner = 'This domain is owned by you!';
-        // }else if(!owner_addr){
-        //   domainowner = 'This domain is NOT owned by anyone yet!';
-        // }else{
-        //   domainowner = `This domain is owned by ${owner_addr}`;
-        // }
-        // console.log(domainowner);
         if(ret)exists = true;
 
       }catch(e){
@@ -66,7 +58,7 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
           accountholder: accounts[0],
           exists,
           domainowner,
-          url: window.location.hostname
+          hostname: window.location.hostname
         }
       }
     ))
@@ -74,19 +66,24 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
 
   document.addEventListener('CREATE_PLAYER', async(e) => {
     console.log('script: CREATE_PLAYER');
-
+    const accountholder = accounts[0];
     try{
       await domainion.methods.createPlayer().send({
-        from: accounts[0]
+        from: accountholder
       });
       console.log('script: PLAYER_CREATED');
-      document.dispatchEvent(new CustomerEvent('WEB3_PLAYER_CREATED'));
+      document.dispatchEvent(new CustomEvent('WEB3_PLAYER_CREATED',{
+        detail:{
+          accountholder
+        }
+      }));
     }catch(e){
       console.log(e.message);
       console.log('script: PLAYER_NOT_CREATED');
-      document.dispatchEvent(new CustomerEvent('WEB3_PLAYER_NOT_CREATED',
+      document.dispatchEvent(new CustomEvent('WEB3_PLAYER_NOT_CREATED',
       {
         detail:{
+          accountholder,
           error: e.message
         }
       }));
@@ -95,24 +92,30 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
 
   document.addEventListener('ATTACK_DOMAIN', async(e)=>{
     console.log('script: ATTACK_DOMAIN');
-
+    const accountholder = accounts[0];
+    const hostname = e.detail;
     try{
-      if(!e.detail)throw('URL is undefined or empty!');
-      await domainion.methods.attackDomain(e.detail).send({
-        from: accounts[0]
-      }).on('receipt', function(receipt){
-        console.log('receipt');
-        console.log(receipt);
-        if(receipt.gasUsed>0){
-          //transaction successful
-
-          //stop loading
-        }
+      if(!hostname)throw('URL is undefined or empty!');
+      await domainion.methods.attackDomain(hostname).send({
+        from: accountholder
       });
+      console.log('script: DOMAIN_ATTACKED');
+      document.dispatchEvent(new CustomEvent('WEB3_ATTACK_SUCCESS',{
+        detail:{
+          accountholder,
+          hostname
+        }
+      }));
     }catch(e){
-      console.log(e);
-      //transaction unsuccesful
-      //stop loading
+      console.log(e.message);
+      console.log('script: DOMAIN_NOT_ATTACKED');
+      document.dispatchEvent(new CustomEvent('WEB3_ATTACK_FAIL',{
+        detail:{
+          accountholder,
+          hostname,
+          error: e.message
+        }
+      }));
     }
   })
 

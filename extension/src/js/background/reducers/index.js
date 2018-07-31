@@ -1,9 +1,11 @@
 import {combineReducers} from 'redux';
 
-import store from './store';
+import utils from './utils';
 import account from './account';
+import popupstate from './popup/state';
 
 export default combineReducers({
-  store,
-  account
+  utils,
+  account,
+  popupstate
 });

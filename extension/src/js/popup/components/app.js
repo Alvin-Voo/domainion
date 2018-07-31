@@ -2,36 +2,39 @@ import React, {Component} from 'react';
 import { Header, Button, Container } from 'semantic-ui-react'
 import {connect} from 'react-redux';
 import * as actions from 'js/background/actions';
+import * as types from 'js/background/actions/types';
 import {parseHostname} from 'js/common/utils';
-
 
 class App extends Component{
 
-  state={
-    join_button_loading:false,
-    attack_button_loading:false
-  };
+  state={};
 
   componentDidMount(){
-    this.props.init();
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {type: types.INIT});
+    });
   }
 
   onJoin=(event)=>{
-    this.props.bglog("YAY Join!");
-    this.props.join();
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {//so 'this' points to class
+     chrome.tabs.sendMessage(tabs[0].id, {type: types.JOIN});
+     //set join button state to loading
+     this.props.joining(this.props.account.accountholder);
+   });
   }
 
   onAttack=(event)=>{
-    this.props.bglog("YAY Attack!");
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      const hostname = parseHostname(tabs[0].url);
-      this.props.bglog('attacking '+hostname);
-      this.props.attack(hostname);
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      const {hostname,accountholder} = this.props.account
+      this.props.bglog(accountholder+'attacking '+hostname);
+      chrome.tabs.sendMessage(tabs[0].id, {type: types.ATTACK, hostname});
+      //set attack button state to loading
+      this.props.attacking(hostname,accountholder);
     });
   }
 
   showInfo=()=>{
-    const {accountholder,exists,domainowner} = this.props.account;
+    const {accountholder,exists} = this.props.account;
     if(!accountholder){
       return 'Please login to your MetaMask.';
     }else{
@@ -39,8 +42,51 @@ class App extends Component{
         return `Welcome back! ${accountholder}.`;
       }
     }
-
     return 'Are you new here? Press the \'Join!\' button to start playing!';
+  }
+
+  showOwnershipInfo=()=>{
+    const {accountholder,domainowner,hostname} = this.props.account;
+    if(!domainowner||parseInt(domainowner)===0){
+      return 'This domain is NOT owned by anyone yet!';
+    }else if(parseInt(domainowner)>0){
+      if(accountholder===domainowner) {
+        return `${hostname} is owned by you!`;
+      }
+      else return `${hostname} is owned by ${domainowner}.`;
+    }
+  }
+
+  isJoinDisabled=()=>{
+    return !this.props.account.accountholder || this.props.account.exists || this.isJoinLoading();
+  }
+
+  isJoinLoading=()=>{
+    const popupstate = this.props.popupstate[this.props.account.accountholder];
+    // this.props.bglog('popupstate');
+    // this.props.bglog(popupstate);
+    if(popupstate){
+      return popupstate.status === types.JOINING;
+    }
+
+    return false;
+  }
+
+  isAttackDisabled=()=>{
+    //if user not exist, disable this
+    //if join button is loading, disable this
+    return !this.props.account.exists || this.isJoinLoading() || this.isAttackLoading();
+  }
+
+  isAttackLoading=()=>{
+    const popupstate = this.props.popupstate[this.props.account.accountholder];
+    this.props.bglog('popupstate');
+    this.props.bglog(popupstate);
+    if(popupstate){
+      return popupstate[this.props.account.hostname].currentState === types.ATTACKING;
+    }
+
+    return false;
   }
 
   render(){
@@ -49,18 +95,20 @@ class App extends Component{
        <Header as='h2'>Welcome to Domainion!</Header>
        <p>{this.showInfo()}</p>
        <hr/>
-       <p>info</p>
+       <p>{this.showOwnershipInfo()}</p>
+       <p style={{color:'red', fontSize:'0.8em'}}>error</p>
        <hr/>
-       <Button primary onClick={this.onJoin} disabled={this.props.account.exists}>Join!</Button>
-       <Button color='google plus' onClick={this.onAttack}>Attack!</Button>
+       <Button primary onClick={this.onJoin} disabled={this.isJoinDisabled()} loading={this.isJoinLoading()}>Join!</Button>
+       <Button color='google plus' onClick={this.onAttack} disabled={this.isAttackDisabled()} loading={this.isAttackLoading()}>Attack!</Button>
       </Container>
     );
   }
 }
 
-const mapStateToProps = ({account}) => {
+const mapStateToProps = ({account,popupstate}) => {
   return {
-    account
+    account,
+    popupstate
   };
 };
 

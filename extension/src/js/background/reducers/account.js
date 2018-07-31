@@ -3,7 +3,8 @@ import * as types from '../actions/types';
 const initialState = {
   accountholder:'',
   exists:false,
-  domainowner:''
+  domainowner:'',
+  hostname:''
 }
 
 export default (state = initialState, action) => {
