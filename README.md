@@ -1,12 +1,12 @@
-##Domainion
+## Domainion
 
 The world domaination has begun!
 
-###What is this about?
+### What is this about?
 
 Sorry, can't tell you yet.
 
-###What to do?
+### What to do?
 
 To run
 ```
@@ -30,7 +30,7 @@ To load the Chrome extension
 
 8. Alternatively, you could unzip build.\***\.zip that I provided under extension/ and load that.
 
-###TODO:
+### TODO:
 
 1. players.sol - getMyDomains() and getMyInfo() change to with address argument better for testing? Safety concern?
 2. redux-persist - to rehydrate popup state once browser restarts
