@@ -8,7 +8,8 @@
     "deploy_sol": "node ./ethereum/deploy.js",
     "test": "mocha",
     "build": "node extension/utils/build.js",
-    "start": "node extension/utils/webserver.js"
+    "start": "node extension/utils/webserver.js",
+    "strip": "node extension/utils/strip.js 'extension/build' 'content.bundle.js' 'script.bundle.js'"
   },
   "author": "Alvin",
   "license": "ISC",
@@ -43,10 +44,12 @@
     "html-webpack-plugin": "^3.2.0",
     "json-loader": "^0.5.7",
     "mocha": "^5.2.0",
+    "strip-debug": "^3.0.0",
     "style-loader": "^0.21.0",
     "url-loader": "^1.0.1",
     "webpack": "^4.16.1",
     "webpack-dev-server": "^3.1.4",
-    "write-file-webpack-plugin": "^4.3.2"
+    "write-file-webpack-plugin": "^4.3.2",
+    "yargs": "^12.0.1"
   }
 }
