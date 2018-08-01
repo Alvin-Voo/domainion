@@ -30,6 +30,8 @@ document.addEventListener('WEB3_ATTACK_SUCCESS',(e)=>{
   console.log('dispatching web3 attack success');
   console.log(e.detail);
   proxyStore.dispatch(attack_success(e.detail));
+  //if successful, reinit again
+  document.dispatchEvent(new CustomEvent('INIT'))
 });
 
 document.addEventListener('WEB3_ATTACK_FAIL',(e)=>{

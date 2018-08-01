@@ -1,10 +1,14 @@
 import * as types from 'js/background/actions/types';
-
+import merge from 'lodash/merge'; //no full build please
+//TODO: this state need to presist and rehydrated after the browser is closed and opend again
 const initialState={}
 //address:{
-//  url:{currentState}, --> state or anything bound to page
+//  url:{currentState, error}, --> state and error that is bound to page
+//  url1:{..} --> each url has its own state and error
+//  url2:{..}
+//  url..
 //  status:''--> anything that is one time only, or NOT bound to page, like joining
-//  error: '' --> right now every error due to user actions is saved here
+//  error:'' -->error that is NOT bound to page, like join error
 //}
 //currentState is mutually exclusive, i.e. can only ONE state at a time, joining means you cannot attack..
 
@@ -12,28 +16,21 @@ export default(state = initialState, action)=>{
   switch(action.type){
     case types.JOINING:
       console.log('webstore joining');
-      console.log(action.payload);
-      return {...state, ...action.payload};
     case types.JOIN_SUCCESS:
       console.log('webstore joined success');
-      console.log(action.payload);
-      return {...state, ...action.payload};
     case types.JOIN_FAIL:
       console.log('webstore joined failed');
       console.log(action.payload);
-      return {...state, ...action.payload};
+      return {...state, ...action.payload};//shallow copying is OK for obj first level
     case types.ATTACKING:
       console.log('webstore attacking');
-      console.log(action.payload);
-      return {...state, ...action.payload};
     case types.ATTACK_SUCCESS:
       console.log('webstore attack success');
-      console.log(action.payload);
-      return {...state, ...action.payload};
     case types.ATTACK_FAIL:
-      console.log('webstore attack success');
-      console.log(action.payload);
-      return {...state, ...action.payload};
+      console.log('webstore attack fail');
+      const newState = merge({},state,action.payload);
+      console.log(newState);
+      return newState;
     case types.ERROR:
       return {...state, ...action.payload};
     case types.ERROR_CLEAR:
@@ -42,7 +39,3 @@ export default(state = initialState, action)=>{
       return state;
   }
 }
-
-//if currently joining, disable all other buttons at ANY hostname, after joined, disable join button
-//if currently attacking, attack button is loading at current hostname but available at other hostname
-//for current testing purpose, attack button would still be available even though during cooldown period

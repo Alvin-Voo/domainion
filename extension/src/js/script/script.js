@@ -20,7 +20,7 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
 
     accounts = await web3.eth.getAccounts();
     let exists = false;
-    let domainowner;
+    let domainowner = '';
     console.log(accounts[0]);
 
     if(accounts[0]){
@@ -55,7 +55,7 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
     document.dispatchEvent(new CustomEvent('WEB3_ACCOUNT_PAGE_INFO',
       {
         detail:{
-          accountholder: accounts[0],
+          accountholder: accounts[0]===undefined?'':accounts[0],
           exists,
           domainowner,
           hostname: window.location.hostname
@@ -99,7 +99,7 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
       await domainion.methods.attackDomain(hostname).send({
         from: accountholder
       });
-      console.log('script: DOMAIN_ATTACKED');
+      console.log('script: WEB3_ATTACK_SUCCESS');
       document.dispatchEvent(new CustomEvent('WEB3_ATTACK_SUCCESS',{
         detail:{
           accountholder,
@@ -108,7 +108,7 @@ if(typeof window !== 'undefined' && typeof window.web3 !== 'undefined'){
       }));
     }catch(e){
       console.log(e.message);
-      console.log('script: DOMAIN_NOT_ATTACKED');
+      console.log('script: WEB3_ATTACK_FAIL');
       document.dispatchEvent(new CustomEvent('WEB3_ATTACK_FAIL',{
         detail:{
           accountholder,

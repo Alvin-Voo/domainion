@@ -47,8 +47,9 @@ class App extends Component{
 
   showOwnershipInfo=()=>{
     const {accountholder,domainowner,hostname} = this.props.account;
+    if(!accountholder) return;
     if(!domainowner||parseInt(domainowner)===0){
-      return 'This domain is NOT owned by anyone yet!';
+      return `${hostname} is NOT owned by anyone yet!`;
     }else if(parseInt(domainowner)>0){
       if(accountholder===domainowner) {
         return `${hostname} is owned by you!`;
@@ -80,13 +81,22 @@ class App extends Component{
 
   isAttackLoading=()=>{
     const popupstate = this.props.popupstate[this.props.account.accountholder];
-    this.props.bglog('popupstate');
-    this.props.bglog(popupstate);
-    if(popupstate){
+    // this.props.bglog('popupstate');
+    // this.props.bglog(popupstate);
+    if(popupstate&&popupstate[this.props.account.hostname]){//make sure don't access undefined of undefined
       return popupstate[this.props.account.hostname].currentState === types.ATTACKING;
     }
 
     return false;
+  }
+
+  showError=()=>{
+    const popupstate = this.props.popupstate[this.props.account.accountholder];
+    if(popupstate){
+      if(popupstate.error) return popupstate.error;
+      if(popupstate[this.props.account.hostname]&&popupstate[this.props.account.hostname].error)
+      return popupstate[this.props.account.hostname].error;
+    }
   }
 
   render(){
@@ -96,7 +106,7 @@ class App extends Component{
        <p>{this.showInfo()}</p>
        <hr/>
        <p>{this.showOwnershipInfo()}</p>
-       <p style={{color:'red', fontSize:'0.8em'}}>error</p>
+       <p style={{color:'red', fontSize:'0.8em'}}>{this.showError()}</p>
        <hr/>
        <Button primary onClick={this.onJoin} disabled={this.isJoinDisabled()} loading={this.isJoinLoading()}>Join!</Button>
        <Button color='google plus' onClick={this.onAttack} disabled={this.isAttackDisabled()} loading={this.isAttackLoading()}>Attack!</Button>

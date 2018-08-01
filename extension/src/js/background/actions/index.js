@@ -16,7 +16,7 @@ export function store_web3_account_page_info(payload){
 
 export function joining(accountholder){
   let payloadVal = {};
-  payloadVal[accountholder] = {status: types.JOINING};
+  payloadVal[accountholder] = {status: types.JOINING,error:''};
 
   return{
     type: types.JOINING,
@@ -26,7 +26,7 @@ export function joining(accountholder){
 
 export function join_success({accountholder}){
   let payloadVal = {};
-  payloadVal[accountholder] = {status: types.JOIN_SUCCESS};
+  payloadVal[accountholder] = {status: types.JOIN_SUCCESS,error:''};
 
   return{
     type: types.JOIN_SUCCESS,
@@ -36,7 +36,7 @@ export function join_success({accountholder}){
 
 export function join_fail({accountholder, error}){
   let payloadVal = {};
-  payloadVal[accountholder] = {status: types.JOIN_FAIL, error};
+  payloadVal[accountholder] = {status: types.JOIN_FAIL, error: `JOIN FAIL>${error}`};
 
   return{
     type: types.JOIN_FAIL,
@@ -46,7 +46,7 @@ export function join_fail({accountholder, error}){
 
 export function attacking(hostname,accountholder){//attack which domain
   let payloadVal = {};
-  payloadVal[accountholder]={[hostname]:{currentState: types.ATTACKING}};
+  payloadVal[accountholder]={[hostname]:{currentState: types.ATTACKING,error:''}};
 
   return{
     type: types.ATTACKING,
@@ -56,7 +56,7 @@ export function attacking(hostname,accountholder){//attack which domain
 
 export function attack_success({accountholder, hostname}){
   let payloadVal = {};
-  payloadVal[accountholder] = {[hostname]:{currentState: types.ATTACK_SUCCESS}};
+  payloadVal[accountholder] = {[hostname]:{currentState: types.ATTACK_SUCCESS,error:''}};
 
   return{
     type: types.ATTACK_SUCCESS,
@@ -66,7 +66,7 @@ export function attack_success({accountholder, hostname}){
 
 export function attack_fail({accountholder, hostname, error}){
   let payloadVal = {};
-  payloadVal[accountholder] = {[hostname]:{currentState: types.ATTACK_FAIL},error};
+  payloadVal[accountholder] = {[hostname]:{currentState: types.ATTACK_FAIL,error:`ATTACK FAIL>${error}`}};
 
   return{
     type: types.ATTACK_FAIL,
