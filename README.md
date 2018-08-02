@@ -16,8 +16,13 @@ To run
 > npm start
 ```
 To build
+dev copy:
 ```
 > npm run build
+```
+prod copy:
+```
+> npm run build_prod
 ```
 To load the Chrome extension
 1. Open your Chrome browser
@@ -29,6 +34,13 @@ To load the Chrome extension
 7. Refresh the browser
 
 8. Alternatively, you could unzip build.\***\.zip that I provided under extension/ and load that.
+
+### Issues:
+
+Github.com will throw due to the injected inline script
+Uncaught EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src assets-cdn.github.com".
+--> No solution for now. But I found that if extension 'page ruler' was installed and enabled, there's no such issue anymore.
+--> Other websites seem fine.
 
 ### TODO:
 

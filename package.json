@@ -8,6 +8,7 @@
     "deploy_sol": "node ./ethereum/deploy.js",
     "test": "mocha",
     "build": "node extension/utils/build.js",
+    "build_prod": "export NODE_ENV=production || SET \"NODE_ENV=production\" && node extension/utils/build.js",
     "start": "node extension/utils/webserver.js",
     "strip": "node extension/utils/strip.js 'extension/build' 'content.bundle.js' 'script.bundle.js'"
   },
