@@ -8,6 +8,7 @@
     "deploy_sol": "node ./ethereum/deploy.js",
     "test": "mocha",
     "build": "node extension/utils/build.js",
+    "build_prod": "export NODE_ENV=production || SET \"NODE_ENV=production\" && node extension/utils/build.js",
     "start": "node extension/utils/webserver.js",
     "strip": "node extension/utils/strip.js 'extension/build' 'content.bundle.js' 'script.bundle.js'"
   },
@@ -25,7 +26,7 @@
     "semantic-ui-react": "^0.82.1",
     "solc": "^0.4.24",
     "truffle-hdwallet-provider": "^0.0.3",
-    "web3": "1.0.0-beta.34"
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
