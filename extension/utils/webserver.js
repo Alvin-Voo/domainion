@@ -21,7 +21,6 @@ config.plugins =
   [new webpack.HotModuleReplacementPlugin()].concat(config.plugins || []);
 
 delete config.chromeExtensionBoilerplate;
-
 var compiler = webpack(config);
 
 var server =

@@ -20,7 +20,7 @@ if (fileSystem.existsSync(secretsPath)) {
 
 var options = {
   mode: env.NODE_ENV === "development"? "development" : "production",
-  devtool: env.NODE_ENV === "development"? "cheap-module-eval-source-map" : "",
+  devtool: env.NODE_ENV === "development"? "cheap-module-source-map" : "",
   entry: {
     popup: path.join(__dirname, "src/js", "popup/popup.js"),
     options: path.join(__dirname, "src/js", "options/options.js"),
@@ -73,6 +73,9 @@ var options = {
     new webpack.DefinePlugin({
       "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV)
     }),
+    // new webpack.ProvidePlugin({
+    //   global: path.resolve(__dirname,'global.js')
+    // }),
     new CopyWebpackPlugin([{
       from: path.join(__dirname,"src","manifest.json"),
       transform: function (content, path) {

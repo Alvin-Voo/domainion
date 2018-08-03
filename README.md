@@ -33,18 +33,12 @@ To load the Chrome extension
 6. Load the 'build' folder
 7. Refresh the browser
 
-8. Alternatively, you could unzip build.\***\.zip that I provided under extension/ and load that.
-
-### Issues:
-
-Github.com will throw due to the injected inline script
-Uncaught EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "script-src assets-cdn.github.com".
---> No solution for now. But I found that if extension 'page ruler' was installed and enabled, there's no such issue anymore.
---> Other websites seem fine.
+8. Alternatively, you could unzip build.prod.\***\.zip that I provided under extension/ and load that.
 
 ### TODO:
 
 1. players.sol - getMyDomains() and getMyInfo() change to with address argument better for testing? Safety concern?
 2. redux-persist - to rehydrate popup state once browser restarts
+3. better (idea) for handling of state when switching between tabs
 3. 'Join' button switch to a 'start screen' before actual content
 4. Need to better handle the screen transition in state. e.g fade in out delay before refresh page?
